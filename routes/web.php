@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,8 +17,12 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/sample', [\App\Http\Controllers\Controllers\IndexController::class, 'show']);
-Route::get('/sample/{id}', [\App\Http\Controllers\Controllers\IndexController::class, 'showId']);
+Route::get('/react/{any}', function () {
+    return view('react');
+})->where('any', '.*');
+
+// Route::get('/sample', [\App\Http\Controllers\Controllers\IndexController::class, 'show']);
+// Route::get('/sample/{id}', [\App\Http\Controllers\Controllers\IndexController::class, 'showId']);
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -29,9 +32,9 @@ Route::get('/authors/autocomplete', \App\Http\Controllers\Authors\AutocompleteCo
 Route::get('/publishers/autocomplete', \App\Http\Controllers\Publishers\AutocompleteController::class)->name('publishers.autocomplete');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/user', \App\Http\Controllers\Users\IndexController::class)->name('users.index');
 
