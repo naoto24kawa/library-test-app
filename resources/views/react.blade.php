@@ -6,14 +6,22 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>laravelView側タイトル</title>
+    <title>{{ config('app.name', 'Library') }}</title>
+
+    {{-- Fonts --}}
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    {{-- Resources --}}
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
     @viteReactRefresh
-    @vite(['resources/views/index.tsx'])
+    @vite(['resources/js/app.js', 'resources/views/index.tsx'])
+    @inertiaHead
 </head>
 
 <body>
-    <!-- app.tsxの内容を追加する部分 -->
-    <div id="app"></div>
+    @inertia
 </body>
 
 </html>

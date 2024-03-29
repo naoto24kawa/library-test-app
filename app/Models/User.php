@@ -62,4 +62,12 @@ class User extends Authenticatable
     {
         return $this->borrowedBooks()->contains('id', $book_id);
     }
+
+    public function in_progress()
+    {
+        return $this->belongsToMany(Book::class, RentalHistory::TABLE)
+            ->wherePivotIn('rental_status_id', RentalStatus::PROGRESS)
+            ->using(RentalHistory::class)
+            ->withPivot(array_values(Schema::getColumnListing(RentalHistory::TABLE)));
+    }
 }
