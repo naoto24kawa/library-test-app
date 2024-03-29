@@ -12,12 +12,15 @@ class BooksService
 {
     public function getBooks()
     {
-        return Book::query()->orderBy('created_at', 'DESC')->paginate(12);
+        return Book::query()->orderBy('created_at', 'DESC')->with('author:id,name', 'publisher:id,name')->paginate(12);
     }
 
     public function getBook($bookId) : Book
     {
-        return Book::query()->where('id', $bookId)->firstOrFail();
+        return Book::query()
+            ->where('id', $bookId)
+            ->with('author:id,name', 'publisher:id,name', 'comments.createdUser', 'in_progress')
+            ->withCount('users')->firstOrFail();
     }
 
     public function createBook($form) : Book

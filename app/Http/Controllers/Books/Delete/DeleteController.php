@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Books\Delete;
 
-use App\Models\Book;
 use App\Http\Controllers\Controller;
 use App\Services\BooksService;
 use Illuminate\Http\Request;

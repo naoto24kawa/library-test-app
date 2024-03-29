@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Books;
 use App\Http\Controllers\Controller;
 use App\Services\BooksService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class IndexController extends Controller
 {
@@ -15,6 +18,17 @@ class IndexController extends Controller
     {
         $book = $booksService->getBook($request->route('bookId'));
         return view('library.books.detail', [
+                'book' => $book,
+            ]);
+    }
+
+    public function react(Request $request, BooksService $booksService)
+    {
+        $authUser = Auth::user();
+        $user = User::query()->where('id', $authUser->id)->with('in_progress')->firstOrFail();
+        $book = $booksService->getBook($request->route('bookId'));
+        return Inertia::render('BookDetailPage', [
+                'user' => $user,
                 'book' => $book,
             ]);
     }

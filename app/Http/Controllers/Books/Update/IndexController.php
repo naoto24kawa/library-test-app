@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Books\Update;
 use App\Http\Controllers\Controller;
 use App\Services\BooksService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class IndexController extends Controller
 {
@@ -15,5 +17,12 @@ class IndexController extends Controller
     {
         $book = $booksService->getBook($request->route('bookId'));
         return view('library.books.upsert', compact('book'));
+    }
+
+    public function react(Request $request, BooksService $booksService)
+    {
+        $user = Auth::user();
+        $book = $booksService->getBook($request->route('bookId'));
+        return Inertia::render('BooksUpsertPage', ['user' => $user, 'book' => $book]);
     }
 }

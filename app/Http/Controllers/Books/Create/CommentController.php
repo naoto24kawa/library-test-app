@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Books\Create;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Comment;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller

@@ -45,6 +45,13 @@ class Book extends Model
             ->wherePivotIn('rental_status_id', $status);
     }
 
+    public function in_progress() {
+        return $this->belongsToMany(User::class, RentalHistory::TABLE)
+            ->using(RentalHistory::class)
+            ->withPivot(array_values(Schema::getColumnListing(RentalHistory::TABLE)))
+            ->wherePivotIn('rental_status_id', RentalStatus::PROGRESS);
+    }
+
     public function isRentable()
     {
         return $this->amount > $this->users(RentalStatus::PROGRESS)->count();
