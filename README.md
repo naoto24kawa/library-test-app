@@ -65,9 +65,9 @@ sail artisan migrate:fresh --seed
 
 React実装の部分
 
-http://localhost/login
-http://localhost/register
-http://localhost/books
-http://localhost/books/1
-http://localhost/books/create
-http://localhost/books/update/1
+http://localhost/login  
+http://localhost/register  
+http://localhost/books  
+http://localhost/books/1  
+http://localhost/books/create  
+http://localhost/books/update/1  
