@@ -3,8 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "typegen": "laravel-typegen"
+    "build": "vite build"
   },
   "devDependencies": {
     "@7nohe/laravel-typegen": "^0.5.1",
@@ -46,10 +45,16 @@
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
+    "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.3",
+    "@mui/x-date-pickers": "^7.1.1",
+    "@types/node": "^20.12.4",
+    "@types/react-modal": "^3.16.3",
     "bootstrap-icons": "^1.11.3",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.10",
-    "react-modal": "^3.16.1"
+    "mui-file-input": "^4.0.4",
+    "react-modal": "^3.16.1",
+    "recoil": "^0.7.7"
   }
 }

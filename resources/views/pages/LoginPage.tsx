@@ -4,7 +4,7 @@ import 'resources/css/login.css'
 import PrimaryButtonComponent from '../components/PrimaryButtonComponent'
 
 const LoginPage: React.FunctionComponent = () => {
-  const { data, setData, get, processing, errors } = useForm({
+  const { data, setData, post, processing, errors } = useForm({
     email: '',
     password: '',
   })
@@ -20,11 +20,13 @@ const LoginPage: React.FunctionComponent = () => {
 
   function handleSubmit(e) {
     e.preventDefault()
-    get('/login')
+    post('/login')
   }
 
+  console.log(errors)
+
   return (
-    <div className="d-flex align-items-center py-4 bg-body-tertiary">
+    <div className="h-100 d-flex align-items-center py-4 bg-body-tertiary">
       <main className="form-signin w-100 m-auto">
         <form onSubmit={handleSubmit}>
           <h1 className="h3 mb-3 fw-normal">Please sign in</h1>
@@ -83,7 +85,7 @@ const LoginPage: React.FunctionComponent = () => {
 
           <PrimaryButtonComponent
             type="submit"
-            className="ml-3"
+            className={['w-100', 'ml-3']}
             disabled={processing}
           >
             ログイン

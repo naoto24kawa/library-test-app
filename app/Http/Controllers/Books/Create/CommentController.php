@@ -18,9 +18,14 @@ class CommentController extends Controller
         $book = Book::findOrFail($bookId);
         $comment = Comment::factory()->create([
             'book_id' => $bookId,
-            'content' => $request->input('form-comment'),
+            'content' => $request->input('content'),
         ]);
         $book->comments()->save($comment); // TODO: 現状は新規追加。コメント返信の場合はaddChildする必要あり
+        if ($request->get('framework') == 'react')
+        {
+            return redirect()
+                ->intended('/react/books/'.$book->id.'?framework=react');
+        }
         return redirect()->route('books.detail', ['bookId' => $bookId]);
     }
 }

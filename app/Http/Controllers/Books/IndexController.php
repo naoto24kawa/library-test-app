@@ -27,9 +27,11 @@ class IndexController extends Controller
         $authUser = Auth::user();
         $user = User::query()->where('id', $authUser->id)->with('in_progress')->firstOrFail();
         $book = $booksService->getBook($request->route('bookId'));
+        $comments = $book->comments->loadMissing('created_user', 'children.created_user');
         return Inertia::render('BookDetailPage', [
                 'user' => $user,
                 'book' => $book,
+                'comments' => $comments,
             ]);
     }
 }

@@ -129,7 +129,7 @@ const UserRegisterPage: React.FunctionComponent = () => {
                 {'Already registered?'}
               </Link>
 
-              <PrimaryButtonComponent type="submit" className="ml-4">
+              <PrimaryButtonComponent type="submit" className="w-100 ml-4">
                 登録する
               </PrimaryButtonComponent>
             </div>

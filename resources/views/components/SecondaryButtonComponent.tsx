@@ -2,7 +2,7 @@ import classnames from 'classnames'
 import React from 'react'
 import { DefaultButton, DefaultButtonProps } from './DefaultButton'
 
-const PrimaryButtonComponent: React.FunctionComponent<DefaultButtonProps> = ({
+const SecondaryButtonComponent: React.FunctionComponent<DefaultButtonProps> = ({
   type,
   className,
   label,
@@ -12,7 +12,7 @@ const PrimaryButtonComponent: React.FunctionComponent<DefaultButtonProps> = ({
 }) => (
   <DefaultButton
     type={type}
-    className={classnames(className, 'btn-primary py-2')}
+    className={classnames(className, 'btn-secondary py-2')}
     label={label}
     onClick={onClick}
     disabled={disabled ?? false}
@@ -21,4 +21,4 @@ const PrimaryButtonComponent: React.FunctionComponent<DefaultButtonProps> = ({
   </DefaultButton>
 )
 
-export default PrimaryButtonComponent
+export default SecondaryButtonComponent

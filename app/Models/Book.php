@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class Book extends Model
 {
@@ -68,5 +69,10 @@ class Book extends Model
             ->pluck('pivot.end_date')
             ->min();
         return is_null($date) ? null : Carbon::parse($date)->format('Y-m-d');
+    }
+
+    public function cover()
+    {
+        return is_null($this->img_path) ? null : Storage::get('public/images/books/'.$this->img_path);
     }
 }

@@ -31,7 +31,7 @@ class Comment extends Entity
         return $this->belongsTo(Book::class, 'book_id');
     }
 
-    public function createdUser() : BelongsTo
+    public function created_user() : BelongsTo
     {
         return $this->belongsTo(User::class, 'created_user_id');
     }

@@ -6,8 +6,8 @@ type Author = {
 }
 
 type Book = {
-  id: number
-  title: string
+  id?: number
+  title?: string
   description?: string
   img_path?: string
   amount?: number
@@ -30,6 +30,7 @@ type Comment = {
   book?: Book
   created_user?: User
   create_at?: string
+  children?: Comment[]
 }
 
 type Publisher = {

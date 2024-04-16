@@ -32,8 +32,8 @@ class CreateRequest extends FormRequest
 
         $id = $this->input('book_id');
         $title = $this->input('title');
-        $author = $this->input('author');
-        $publisher = $this->input('publisher');
+        $author = $this->input('author.name');
+        $publisher = $this->input('publisher.name');
         $description = $this->input('description');
         $amount = $this->input('amount');
         $cover = $this->file('cover');

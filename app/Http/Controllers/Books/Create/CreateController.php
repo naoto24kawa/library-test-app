@@ -14,6 +14,12 @@ class CreateController extends Controller
     public function __invoke(CreateRequest $request, BooksService $booksService)
     {
         $book = $booksService->createBook($request->form());
+        if ($request->get('framework') == 'react')
+        {
+            return redirect()
+                ->intended('/react/books/'.$book->id.'?framework=react')
+                ->with('feedback.success', "登録しました ( title: {$book->title})");
+        }
         return redirect()
             ->route('index')
             ->with('feedback.success', "登録しました ( title: {$book->title})");

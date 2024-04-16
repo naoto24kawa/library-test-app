@@ -19,7 +19,7 @@ class BooksService
     {
         return Book::query()
             ->where('id', $bookId)
-            ->with('author:id,name', 'publisher:id,name', 'comments.createdUser', 'in_progress')
+            ->with('author:id,name', 'publisher:id,name', 'in_progress')
             ->withCount('users')->firstOrFail();
     }
 
@@ -31,15 +31,15 @@ class BooksService
         $book->description = $form['description'];
         $book->amount = $form['amount'];
 
-
         if (isset($form['cover'])) {
+            // TODO: 過去のファイルを削除したい
             Storage::putFile('public/images/books', $form['cover']);
             $book->img_path = $form['cover']->hashName();
         }
 
         if (!empty($form['author']))
         {
-            $author = Author::createOrFirst(['name' => $form['author']]); // /TODO: Createしたかどうかわからないのが嫌
+            $author = Author::createOrFirst(['name' => $form['author']]); // TODO: Createしたかどうかわからないのが嫌
             $book->author()->associate($author);
         }
         if (!empty($form['publisher']))

@@ -1,4 +1,4 @@
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 
 // 最大値・最小値の計算するための拡張プラグイン
 import minMax from 'dayjs/plugin/minMax'
@@ -10,4 +10,16 @@ import 'dayjs/locale/ja'
 dayjs.extend(minMax)
 dayjs.locale('ja')
 
-export default dayjs
+const enum Unit {
+  day = 'day',
+  week = 'week',
+  month = 'month',
+  quarter = 'quarter',
+  year = 'year',
+  hour = 'hour',
+  minute = 'minute',
+  second = 'second',
+  millisecond = 'millisecond',
+}
+
+export { dayjs, Unit, Dayjs }

@@ -62,7 +62,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/books/create', \App\Http\Controllers\Books\Create\CreateController::class)->name('books.create.upsert');
 
     Route::get('/books/update/{bookId}', \App\Http\Controllers\Books\Update\IndexController::class)->name('books.update.index');
-    Route::put('/books/update/{bookId}', \App\Http\Controllers\Books\Update\PutController::class)->name('books.update.put');
+    Route::post('/books/update/{bookId}', \App\Http\Controllers\Books\Update\PutController::class)->name('books.update.put');
 
     Route::delete('/books/delete/{bookId}', \App\Http\Controllers\Books\Delete\DeleteController::class)->name('books.delete.delete');
 

@@ -6,6 +6,7 @@ import BookCardComponent from '../components/BookCardComponent'
 import Layout from '../layouts/Layout'
 import Pagination from '@mui/material/Pagination'
 import PaginationItem from '@mui/material/PaginationItem'
+import Stack from '@mui/material/Stack'
 import { Link } from '@inertiajs/react'
 
 type Props = {
@@ -23,17 +24,20 @@ const LibraryListPage: React.FunctionComponent<Props> = ({ user, books }) => {
     <Layout>
       <div className="album py-5 bg-body-tertiary">
         <div className="container">
-          <Pagination
-            page={books.current_page}
-            count={books.last_page}
-            renderItem={(item) => (
-              <PaginationItem
-                component={Link}
-                href={`/react/books?page=${item.page}`}
-                {...item}
-              />
-            )}
-          />
+          <Stack alignItems="end">
+            <Pagination
+              className="pb-3"
+              page={books.current_page}
+              count={books.last_page}
+              renderItem={(item) => (
+                <PaginationItem
+                  component={Link}
+                  href={`/react/books?page=${item.page}`}
+                  {...item}
+                />
+              )}
+            />
+          </Stack>
           <div className="row mb-2">
             {books.data.map((book) => (
               <div className="col-lg-6 col-md-12">

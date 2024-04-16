@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Books\Update;
 
 use App\Http\Controllers\Controller;
 use App\Services\BooksService;
+use App\Models\Author;
+use App\Models\Publisher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -23,6 +25,14 @@ class IndexController extends Controller
     {
         $user = Auth::user();
         $book = $booksService->getBook($request->route('bookId'));
-        return Inertia::render('BooksUpsertPage', ['user' => $user, 'book' => $book]);
+        $authors = Author::all();
+        $publishers = Publisher::all();
+
+        return Inertia::render('BooksUpdatePage', [
+            'user' => $user,
+            'book' => $book,
+            'authors' => $authors,
+            'publishers' => $publishers,
+        ]);
     }
 }

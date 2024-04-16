@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Books\Create;
 
 use App\Http\Controllers\Controller;
+use App\Services\BooksService;
+use App\Models\Author;
+use App\Models\Publisher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -20,10 +23,16 @@ class IndexController extends Controller
             ]);
     }
 
-    public function react()
+    public function react(Request $request, BooksService $booksService)
     {
         $user = Auth::user();
-        return Inertia::render('BooksUpsertPage', ['user' => $user]);
+        $authors = Author::all();
+        $publishers = Publisher::all();
 
+        return Inertia::render('BooksUpdatePage', [
+            'user' => $user,
+            'authors' => $authors,
+            'publishers' => $publishers,
+        ]);
     }
 }

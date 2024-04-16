@@ -28,10 +28,10 @@ class CreateRequest extends FormRequest
     public function form()
     {
 
-        $user_id = $this->input('modal-user-id');
-        $book_id = $this->input('modal-book-id');
+        $user_id = $this->input('user.');
+        $book_id = $this->input('book.id');
         $start_date = Carbon::now();
-        $end_date = $this->input('modal-return-date');
+        $end_date = $this->input('returnDate');
 
         return compact(
             'user_id',

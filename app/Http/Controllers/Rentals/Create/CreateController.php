@@ -13,6 +13,7 @@ class CreateController extends Controller
      */
     public function __invoke(CreateRequest $request, RentalsService $rentalsService)
     {
+        dd($request->form());
         $rentalsService->rent($request->form());
 
         return redirect()->route('index');

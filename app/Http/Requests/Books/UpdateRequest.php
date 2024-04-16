@@ -29,20 +29,24 @@ class UpdateRequest extends FormRequest
 
     public function form()
     {
+        $id = $this->input('id');
         $title = $this->input('title');
-        $author = $this->input('author');
-        $publisher = $this->input('publisher');
+        $author = $this->input('author.name');
+        $publisher = $this->input('publisher.name');
         $description = $this->input('description');
         $amount = $this->input('amount');
-        $created_user_id = $this->input('created_user_id');
+        $created_user_id = $this->input('user.id');
+        $cover = $this->file('cover');
 
         return compact(
+            'id',
             'title',
             'author',
             'publisher',
             'description',
             'amount',
-            'created_user_id'
+            'created_user_id',
+            'cover'
         );
     }
 }
