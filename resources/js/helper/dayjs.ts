@@ -10,7 +10,7 @@ import 'dayjs/locale/ja'
 dayjs.extend(minMax)
 dayjs.locale('ja')
 
-const enum Unit {
+export const enum Unit {
   day = 'day',
   week = 'week',
   month = 'month',
@@ -22,4 +22,8 @@ const enum Unit {
   millisecond = 'millisecond',
 }
 
-export { dayjs, Unit, Dayjs }
+export const enum Format {
+  standard = 'YYYY-MM-DD',
+}
+
+export { dayjs, Dayjs }

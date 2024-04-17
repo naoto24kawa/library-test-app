@@ -48,6 +48,7 @@ class User extends Authenticatable
     public function books($status = RentalStatus::ALL)
     {
         return $this->belongsToMany(Book::class, RentalHistory::TABLE)
+            ->as('rental_history')
             ->wherePivotIn('rental_status_id', $status)
             ->using(RentalHistory::class)
             ->withPivot(array_values(Schema::getColumnListing(RentalHistory::TABLE)));
@@ -66,6 +67,7 @@ class User extends Authenticatable
     public function in_progress()
     {
         return $this->belongsToMany(Book::class, RentalHistory::TABLE)
+            ->as('rental_history')
             ->wherePivotIn('rental_status_id', RentalStatus::PROGRESS)
             ->using(RentalHistory::class)
             ->withPivot(array_values(Schema::getColumnListing(RentalHistory::TABLE)));

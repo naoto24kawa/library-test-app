@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Rentals\Update;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rentals\UpdateRequest;
 use App\Services\RentalsService;
-use Illuminate\Http\Request;
 
 class UpdateController extends Controller
 {

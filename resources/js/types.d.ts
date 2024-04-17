@@ -22,6 +22,7 @@ type Book = {
   earliestReturnDate?: string
   in_progress?: User[]
   users_count?: number
+  rental_history?: RentalHistory
 }
 
 type Comment = {

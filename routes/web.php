@@ -32,6 +32,9 @@ Route::prefix('react')->group(function() {
     Route::get('/register', function () {
         return Inertia::render('UserRegisterPage');
     });
+
+    Route::get('/user', [\App\Http\Controllers\Users\IndexController::class, 'react']);
+
     Route::get('/books', [\App\Http\Controllers\IndexController::class, 'react']);
     Route::get('/books/{bookId}', [\App\Http\Controllers\Books\IndexController::class, 'react']);
     Route::get('/books/create', [\App\Http\Controllers\Books\Create\IndexController::class, 'react']);

@@ -2,14 +2,11 @@
 import { css, jsx } from '@emotion/react'
 import React from 'react'
 import { useForm } from '@inertiajs/react'
-import { TextField } from '@mui/material'
-import { dayjs, Dayjs, Unit } from '../..//js/helper/dayjs'
+import { TextField, Button, ButtonGroup } from '@mui/material'
 import { DefaultModal } from './DefaultModal'
-import PrimaryButtonComponent from './PrimaryButtonComponent'
-import SecondaryButtonComponent from './SecondaryButtonComponent'
 import useModal from '../../js/hooks/useModal'
 import { ModalTypeEnum } from '../../js/states/modal'
-import DatePicker from './DatePicker'
+import { dayjs, Format } from '../../js/helper/dayjs'
 
 type Props = {
   user: User
@@ -19,28 +16,26 @@ type Props = {
 type FormData = {
   book: Book
   user: User
-  returnDate: Dayjs | null
 }
 
-const RentalFormComponent: React.FunctionComponent<Props> = ({
+const ReturnFormComponent: React.FunctionComponent<Props> = ({
   user,
   book,
 }) => {
-  const [, setIsOpen] = useModal(ModalTypeEnum.rental)
+  const [, setIsOpen] = useModal(ModalTypeEnum.return)
 
-  const { data, setData, post, processing, errors } = useForm<FormData>({
+  const { data, post, processing, errors } = useForm<FormData>({
     user: user,
     book: book,
-    returnDate: dayjs().add(2, Unit.week),
   })
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    post(`/rentals/create?framework=react`)
+    post(`/rentals/update?framework=react`)
   }
 
   return (
-    <DefaultModal type="rental">
+    <DefaultModal type="return">
       <div
         className="container"
         css={css`
@@ -71,39 +66,33 @@ const RentalFormComponent: React.FunctionComponent<Props> = ({
             label="Title"
             fullWidth
           />
-          <DatePicker
+          <TextField
+            type="text"
             className="form-control"
-            label="Return Date"
-            format="YYYY-MM-DD"
-            value={data.returnDate}
-            onChange={(newValue) => setData('returnDate', newValue)}
-            disabled={processing}
-            slots={{
-              textField: (params) => (
-                <TextField {...params} variant="filled" fullWidth />
-              ),
+            inputProps={{
+              readOnly: true,
             }}
+            variant="filled"
+            value={dayjs(data.book.rental_history?.end_date).format(
+              Format.standard
+            )}
+            label="Return Date"
+            fullWidth
           />
           <div className="row my-2">
-            <div className="col">
-              <SecondaryButtonComponent
+            <ButtonGroup fullWidth>
+              <Button
                 type="button"
-                className={['w-100']}
+                variant="outlined"
                 onClick={() => setIsOpen(false)}
                 disabled={processing}
               >
                 Cancel
-              </SecondaryButtonComponent>
-            </div>
-            <div className="col">
-              <PrimaryButtonComponent
-                type="submit"
-                className={['w-100']}
-                disabled={processing}
-              >
-                Confirm
-              </PrimaryButtonComponent>
-            </div>
+              </Button>
+              <Button type="submit" variant="contained" disabled={processing}>
+                Return
+              </Button>
+            </ButtonGroup>
           </div>
         </form>
       </div>
@@ -111,7 +100,7 @@ const RentalFormComponent: React.FunctionComponent<Props> = ({
   )
 }
 
-export default RentalFormComponent
+export default ReturnFormComponent
 
 {
   /* <Modal title="Rental Confirm" id="modal-confirm">

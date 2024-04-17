@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
-use App\Models\RentalStatus;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class IndexController extends Controller
 {
@@ -20,5 +19,16 @@ class IndexController extends Controller
             'user' => $user,
             'books' => $books,
         ]);
+    }
+
+    public function react(Request $request)
+    {
+        $user = $request->user();
+        $books = $user->borrowedBooks();
+        // dd($books[0]->pivot->end_date);
+        return Inertia::render('MyPage', [
+            'user' => $user,
+            'books' => $books,
+            ]);
     }
 }

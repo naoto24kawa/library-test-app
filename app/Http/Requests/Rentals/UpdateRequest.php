@@ -27,8 +27,8 @@ class UpdateRequest extends FormRequest
     public function form()
     {
 
-        $user_id = $this->input('modal-user-id');
-        $book_id = $this->input('modal-book-id');
+        $user_id = $this->input('user.id');
+        $book_id = $this->input('book.id');
 
         return compact(
             'user_id',
