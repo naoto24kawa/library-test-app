@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Books;
 
 use App\Http\Controllers\Controller;
+use App\Models\Book;
 use App\Services\BooksService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -30,5 +31,11 @@ class IndexController extends Controller
                 'book' => $book,
                 'comments' => $comments,
             ]);
+    }
+
+    public function get(Request $request, BooksService $booksService)
+    {
+        $books = Book::all();
+        return response()->json(['books' => $books]);
     }
 }

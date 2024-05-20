@@ -22,6 +22,7 @@ export default defineConfig({
     hmr: {
       host: 'localhost',
     },
+    port: 3000,
   },
   build: {
     sourcemap: 'hidden',
