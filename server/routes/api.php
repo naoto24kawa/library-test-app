@@ -19,3 +19,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/test', [App\Http\Controllers\Books\IndexController::class, 'get']);
+Route::get('/test/{bookId}', [App\Http\Controllers\Books\IndexController::class, 'getById']);
+Route::post('/test/update/{bookId}', [App\Http\Controllers\Books\IndexController::class, 'updateById']);

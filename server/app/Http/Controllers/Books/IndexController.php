@@ -35,7 +35,27 @@ class IndexController extends Controller
 
     public function get(Request $request, BooksService $booksService)
     {
-        $books = Book::all();
-        return response()->json(['books' => $books]);
+        $books = Book::query()->with('author')->paginate(12);
+        return response()->json($books);
+    }
+    
+    public function getById(Request $request, BooksService $booksService)
+    {
+        $book = Book::query()
+            ->where('id', $request->route('bookId'))
+            ->with('author:id,name', 'publisher:id,name', 'in_progress')
+            ->withCount('users')->firstOrFail();
+        return response()->json($book);
+    }
+
+    public function updateById(Request $request, BooksService $booksService)
+    {
+        $book = Book::query()
+            ->where('id', $request->route('bookId'))
+            ->firstOrFail();
+        $book->title = $request->input('title');
+        $book->save();
+        return $book;
+        return response()->json($book);
     }
 }
