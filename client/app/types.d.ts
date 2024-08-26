@@ -64,3 +64,8 @@ type User = {
   pivot?: RentalHistory;
   in_progress?: Book[];
 };
+
+type Token = {
+  token: string;
+  id: number;
+};

@@ -1,7 +1,10 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 // import { json } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import axios from "../utils/axios";
+import { Pagination as PaginationType } from "../types/Pagination";
+import { Book } from "../types/Book";
+import Spinner from "../components/Spinner";
 
 export const meta: MetaFunction = () => {
   return [
@@ -10,9 +13,9 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
-    const response = await axios.get("/test");
+    const response = await axios.get<PaginationType<Book>>("/test", request);
     if (!response.data) {
       throw new Response("Not Found", { status: 404 });
     }
@@ -25,9 +28,9 @@ export const loader = async () => {
 
 export default function Index() {
   const books = useLoaderData<typeof loader>();
-  console.log(books);
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
+      <Spinner />
       <h1>Welcome to Remix</h1>
       <Outlet />
       <ul>

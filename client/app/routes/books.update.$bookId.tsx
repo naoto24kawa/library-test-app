@@ -12,9 +12,13 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 
   try {
     // フォームデータを処理し、APIにPOSTリクエストを送信
-    const response = await axios.post(`/test/update/${params.bookId}`, {
-      title: formData.get("title"),
-    });
+    const response = await axios.post(
+      `/test/update/${params.bookId}`,
+      {
+        title: formData.get("title"),
+      },
+      request
+    );
     console.log(response);
 
     // 成功した場合、更新された本の詳細ページにリダイレクト
@@ -25,9 +29,10 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     return json({ error: "更新に失敗しました。" }, { status: 400 });
   }
 };
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   try {
-    const response = await axios.get<Book>(`/test/${params.bookId}`);
+    const response = await axios.get<Book>(`/test/${params.bookId}`, request);
     if (!response.data) {
       throw new Response("Not Found", { status: 404 });
     }

@@ -2,13 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Author;
 use App\Models\Book;
-use App\Models\Publisher;
-use App\Models\RentalStatus;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class RentalsService
 {

@@ -8,6 +8,10 @@ export const button = cva({
     borderWidth: "1px",
     borderRadius: "sm",
     borderColor: "gray",
+    _hover: {
+      shadow: "md",
+      cursor: "pointer",
+    },
   },
   variants: {
     type: {
@@ -24,10 +28,20 @@ export const button = cva({
       "1/4": { width: "1/4" },
       auto: { width: "auto" },
     },
+    disabled: {
+      true: {
+        color: "red",
+        cursor: "not-allowed",
+        _hover: {
+          pointerEvents: "none",
+        },
+      },
+    },
   },
   defaultVariants: {
     type: "default",
     size: "small",
     width: "auto",
+    disabled: false,
   },
 });
