@@ -64,7 +64,7 @@ class User extends Authenticatable
         return $this->borrowedBooks()->contains('id', $book_id);
     }
 
-    public function in_progress()
+    public function inProgress()
     {
         return $this->belongsToMany(Book::class, RentalHistory::TABLE)
             ->as('rental_history')

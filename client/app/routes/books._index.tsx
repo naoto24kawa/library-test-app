@@ -1,23 +1,30 @@
+import {
+  useLoaderData,
+  Form,
+  useOutletContext,
+  redirect,
+  json,
+  useSearchParams,
+} from "@remix-run/react";
+import { decode } from "html-entities";
+
+import { css } from "../../styled-system/css";
+import BookCardComponent from "../components/BookCard";
+import {
+  rentalBook,
+  returnBook,
+  deleteBook,
+} from "../components/BookCard/server";
+import { button } from "../styles/button.css";
+import axios from "../utils/axios";
+
+import type { Authentication } from "../types/Authentication";
+import type { Pagination as PaginationType } from "../types/Pagination";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-import {
-  useLoaderData,
-  Link,
-  useOutletContext,
-  redirect,
-} from "@remix-run/react";
-import axios from "../utils/axios";
-import { Pagination as PaginationType } from "../types/Pagination";
-import { css } from "../../styled-system/css";
-import { vstack, hstack } from "../../styled-system/patterns";
-import BookCardComponent from "../components/BookCardComponent";
-import { Authentication } from "../types/Authentication";
-import { APP_URL } from "../../conf";
-import { link } from "../styles/link.css";
-import { decode } from "html-entities";
 
 export const meta: MetaFunction = () => {
   return [
@@ -28,88 +35,146 @@ export const meta: MetaFunction = () => {
 
 export const loader = async ({
   request,
-}: LoaderFunctionArgs): Promise<PaginationType<Book> | null> => {
+}: LoaderFunctionArgs): Promise<{
+  books: PaginationType<Book>;
+  q: string | null;
+}> => {
   try {
-    // parse the search params for `?q=`
     const url = new URL(request.url);
-    const query = url.searchParams.get("page");
-
+    const q = url.searchParams.get("q");
     const response = await axios.get<PaginationType<Book>>(
-      `/test?page=${query}`,
+      `/test/book${url.search}`,
       request
     );
+
     if (!response.data) {
       throw new Response("Not Found", { status: 404 });
     }
-    return response.data;
+
+    return json({ books: response.data, q: q });
   } catch (error) {
-    console.log(error);
-    return null;
+    return json({ books: null, q: null });
   }
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const { _action, ...data } = Object.fromEntries(formData);
+  const { _action } = Object.fromEntries(formData);
 
   if (_action === "rental") {
-    return await axios.post("/test/rental", data, request);
+    return await rentalBook(request);
   }
 
   if (_action === "delete") {
-    await axios.post("/test/delete", data, request);
+    await deleteBook(request);
+    // TODO: responseのチェックが必要
     return redirect("/books");
   }
 
-  // try {
-  //   // フォームデータを処理し、APIにPOSTリクエストを送信
-  //   const response = await axios.post(
-  //     `/test/update/${params.bookId}`,
-  //     {
-  //       title: formData.get("title"),
-  //     },
-  //     request
-  //   );
-  //   console.log(response);
+  if (_action === "return") {
+    await returnBook(request);
+    // TODO: responseのチェックが必要
+    return redirect("/books");
+  }
 
-  //   // 成功した場合、更新された本の詳細ページにリダイレクト
-  //   return redirect(`/books/${params.bookId}`);
-  // } catch (error) {
-  //   // エラーが発生した場合、エラーメッセージを返す
-  //   console.error(error);
-  //   return json({ error: "更新に失敗しました。" }, { status: 400 });
-  // }
   return null;
 };
 
 export default function BooksIndex() {
+  // context
   const session = useOutletContext<Authentication>();
-  const books = useLoaderData<typeof loader>();
+  // loader
+  const { books, q } = useLoaderData<typeof loader>();
+  // search params
+  const [, setSearchParams] = useSearchParams();
+
   return (
     <>
       <h1 className={css({ fontSize: "2xl", fontWeight: "bold" })}>
         books._index.tsx
       </h1>
-      <div className={hstack()}>
-        {books?.links.map((paginationLink) => (
-          <Link
-            key={paginationLink.label}
-            className={link()}
-            to={convertToClientURL(paginationLink.url)}
-          >
-            {decode(paginationLink.label, { level: "html5" })}
-          </Link>
-        ))}
+      <Form
+        method="get"
+        onSubmit={(e) => {
+          e.preventDefault();
+          // name=qの値を参照したい
+          const q = (e.target as HTMLFormElement).q.value;
+          setSearchParams(
+            (prev) => {
+              q ? prev.set("q", q) : prev.delete("q");
+              return prev;
+            },
+            { replace: true }
+          );
+        }}
+      >
+        {/* TODO: event function等をテスト可能なサイズに切り分けたい */}
+        <fieldset className={css({ display: "flex" })}>
+          <input
+            name="q"
+            type="text"
+            className={css({
+              bg: "white",
+              border: "1px solid",
+              borderColor: "gray.200",
+              borderRadius: "sm",
+              width: "100%",
+              padding: "2",
+            })}
+            defaultValue={q || ""}
+          />
+          <button className={button()} type="submit">
+            Search
+          </button>
+        </fieldset>
+      </Form>
+      <div
+        className={css({
+          display: "flex",
+          justifyContent: "center",
+        })}
+      >
+        {books?.links.map((paginationLink) => {
+          return paginationLink.url ? (
+            <button
+              key={paginationLink.label}
+              className={css({
+                padding: "2",
+                margin: "2",
+                cursor: !paginationLink.active ? "pointer" : "default",
+              })}
+              onClick={() => {
+                if (!paginationLink.active) {
+                  setSearchParams(
+                    (prev) => {
+                      const urlParams = new URLSearchParams(
+                        paginationLink.url.split("?")[1]
+                      );
+                      const page = urlParams.get("page");
+                      page ? prev.set("page", page) : prev.delete("page");
+                      return prev;
+                    },
+                    { replace: true }
+                  );
+                }
+              }}
+            >
+              {decode(paginationLink.label, { level: "html5" })}
+            </button>
+          ) : null;
+        })}
       </div>
-      <div className={vstack()}>
-        {/* <Stack alignItems="end"> */}
-        {/* <Pagination
-            className="pb-3"
-            page={books?.current_page}
-            count={books?.last_page}
-            renderItem={(item) => <PaginationItem {...item} />}
-          /> */}
-        {/* </Stack> */}
+      <div
+        className={css({
+          display: "grid",
+          gridTemplateColumns: {
+            base: "repeat(3, 1fr)",
+            sm: "repeat(4, 1fr)",
+            lg: "repeat(6, 1fr)",
+          },
+          gap: "1",
+        })}
+      >
         {books?.data.map((book) => (
           <BookCardComponent
             book={book as Book}
@@ -120,11 +185,4 @@ export default function BooksIndex() {
       </div>
     </>
   );
-}
-
-function convertToClientURL(link: string) {
-  if (link && link.includes(APP_URL + "/api")) {
-    return link.replace(APP_URL + "/api/test", "/books");
-  }
-  return link ?? "";
 }

@@ -1,12 +1,14 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
 import { Form } from "@remix-run/react";
-import { authenticator } from "../services/auth.server";
+
 import { css } from "../../styled-system/css";
+import { authenticator } from "../services/auth.server";
 import { button } from "../styles/button.css";
+
+import type { ActionFunctionArgs } from "@remix-run/node";
 
 export async function action({ request }: ActionFunctionArgs) {
   return await authenticator.authenticate("user-login", request, {
-    successRedirect: "/success",
+    successRedirect: "/books",
     failureRedirect: "/login",
   });
 }

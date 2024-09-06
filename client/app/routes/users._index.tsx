@@ -1,10 +1,13 @@
-import { useLoaderData, useOutletContext } from "@remix-run/react";
+import { Form, useLoaderData, useOutletContext } from "@remix-run/react";
+
+import { css } from "../../styled-system/css";
+import BookCardComponent from "../components/BookCard";
+import { link } from "../style.css";
 import axios from "../utils/axios";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+
 // import { Pagination as PaginationType } from "../types/Pagination";
-import BookCardComponent from "../components/BookCardComponent";
-import { Authentication } from "../types/Authentication";
-import { vstack } from "../../styled-system/patterns";
+import type { Authentication } from "../types/Authentication";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
@@ -29,40 +32,39 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     console.log("called return");
     axios.post("/test/return", data, request);
   }
-
-  // try {
-  //   // フォームデータを処理し、APIにPOSTリクエストを送信
-  //   const response = await axios.post(
-  //     `/test/update/${params.bookId}`,
-  //     {
-  //       title: formData.get("title"),
-  //     },
-  //     request
-  //   );
-  //   console.log(response);
-
-  //   // 成功した場合、更新された本の詳細ページにリダイレクト
-  //   return redirect(`/books/${params.bookId}`);
-  // } catch (error) {
-  //   // エラーが発生した場合、エラーメッセージを返す
-  //   console.error(error);
-  //   return json({ error: "更新に失敗しました。" }, { status: 400 });
-  // }
   return null;
 };
 
 export default function UsersIndex() {
   const session = useOutletContext<Authentication>();
   const books = useLoaderData<typeof loader>();
+
+  if (!books || "error" in books) {
+    return <div>error</div>;
+  }
+
   return (
-    <div className={vstack()}>
-      {books?.map((book) => (
-        <BookCardComponent
-          book={book as Book}
-          userId={session.id}
-          key={book.id}
-        />
-      ))}
-    </div>
+    <>
+      <p>Borrowed Books</p>
+      <div
+        className={css({
+          display: "grid",
+          gridTemplateColumns: {
+            base: "repeat(3, 1fr)",
+            sm: "repeat(4, 1fr)",
+            lg: "repeat(6, 1fr)",
+          },
+          gap: "1",
+        })}
+      >
+        {books.map((book) => (
+          <BookCardComponent
+            book={book as Book}
+            userId={session.id}
+            key={book.id}
+          />
+        ))}
+      </div>
+    </>
   );
 }

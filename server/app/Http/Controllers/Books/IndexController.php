@@ -8,6 +8,9 @@ use App\Services\BooksService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Author;
+use App\Models\Publisher;
+use Illuminate\Support\Facades\Validator;
 
 class IndexController extends Controller
 {
@@ -24,7 +27,7 @@ class IndexController extends Controller
 
     public function react(Request $request, BooksService $booksService)
     {
-        $user = $request->user()->loadMissing('in_progress');
+        $user = $request->user()->loadMissing('inProgress');
         $book = $booksService->getBook($request->route('bookId'));
         $comments = $book->comments->loadMissing('created_user', 'children.created_user');
         return Inertia::render('BookDetailPage', [
@@ -36,10 +39,36 @@ class IndexController extends Controller
 
     public function get(Request $request, BooksService $booksService)
     {
-        $books = Book::query()
-            ->with('author:id,name', 'publisher:id,name', 'in_progress')
+        // ログインユーザーを取得
+        $user = $request->user();
+
+        // builderの初期化
+        $builder = Book::query();
+
+        // タイトル検索
+        $searchParams = $request->query();
+        if (isset($searchParams['q'])) {
+            $builder->where('title', 'like', '%' . $searchParams['q'] . '%');
+        }
+
+        // 基本情報の取得
+        $books = $builder
+            ->with('author', 'publisher')
             ->orderBy('id', 'desc')
-            ->paginate(12);
+            ->paginate(24);
+
+        // 詳細情報の取得
+        $books->map(function ($book) use ($user) {
+            // レンタル可否
+            $book->isRentable = $book->isRentable();
+            // ログインユーザーの利用状況を取得
+            if (!is_null($user)) {
+                $book->isProgress = $book->isProgress($user);
+                $book->returnDate = $book->returnDate($user);
+            }
+            return $book;
+        });
+
         return response()->json($books);
     }
 
@@ -47,23 +76,44 @@ class IndexController extends Controller
     {
         $book = Book::query()
             ->where('id', $request->route('bookId'))
-            ->with('author:id,name', 'publisher:id,name', 'in_progress')
+            ->with('author:id,name', 'publisher:id,name', 'inProgress')
             ->withCount('users')->firstOrFail();
         return response()->json($book);
     }
 
     public function create(Request $request, BooksService $booksService)
     {
-        // TODO: 過去のファイルを削除したい
-        Storage::putFile('public/images/books', $request->file('cover'));
-        // $book->img_path = $request->input('cover')->hashName();
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:120',
+            'description' => 'string|max:500',
+            'amount' => 'required|integer|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
         $book = Book::factory()->create([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
             'amount' => $request->input('amount'),
-            'img_path' => $request->file('cover')->hashName(),
         ]);
+
+        if (!is_null($request->file('image'))) {
+            Storage::putFile('public/images/books', $request->file('image'));
+            $book->img_path = $request->file('image')->hashName();
+        }
+
+        if (!empty($request->input('author')))
+        {
+            $author = Author::createOrFirst(['name' => $request->input('author')]); // TODO: Createしたかどうかわからないのが嫌
+            $book->author()->associate($author);
+        }
+        if (!empty($request->input('publisher')))
+        {
+            $publisher = Publisher::createOrFirst(['name' => $request->input('publisher')]); // TODO: Createしたかどうかわからないのが嫌
+            $book->publisher()->associate($publisher);
+        }
 
         $user = $request->user();
         $book->createdUser()->associate($user);
@@ -73,13 +123,40 @@ class IndexController extends Controller
         return response()->json($book);
     }
 
-    public function updateById(Request $request, BooksService $booksService)
+    public function update(Request $request, BooksService $booksService)
     {
         $book = Book::query()
-            ->where('id', $request->route('bookId'))
+            ->where('id', $request->input('id'))
             ->firstOrFail();
+
         $book->title = $request->input('title');
+        $book->description = $request->input('description');
+        $book->amount = $request->input('amount');
+
+        if (!is_null($request->file('image'))) {
+            if (!is_null($book->img_path)) {
+                Storage::delete('public/images/books/' . $book->img_path);
+            }
+            Storage::putFile('public/images/books', $request->file('image'));
+            $book->img_path = $request->file('image')->hashName();
+        }
+
+        if (!empty($request->input('author')))
+        {
+            $author = Author::createOrFirst(['name' => $request->input('author')]); // TODO: Createしたかどうかわからないのが嫌
+            $book->author()->associate($author);
+        }
+        if (!empty($request->input('publisher')))
+        {
+            $publisher = Publisher::createOrFirst(['name' => $request->input('publisher')]); // TODO: Createしたかどうかわからないのが嫌
+            $book->publisher()->associate($publisher);
+        }
+
+        $user = $request->user();
+        $book->createdUser()->associate($user);
+
         $book->save();
+
         return response()->json($book);
     }
 
@@ -93,7 +170,21 @@ class IndexController extends Controller
 
     public function getBorrowed(Request $request)
     {
-        $books = $request->user()->borrowedBooks();
+        $user = $request->user();
+        $books = $user->borrowedBooks();
+
+        // 詳細情報の取得
+        $books->map(function ($book) use ($user) {
+            // レンタル可否
+            $book->isRentable = $book->isRentable();
+            // ログインユーザーの利用状況を取得
+            if (!is_null($user)) {
+                $book->isProgress = $book->isProgress($user);
+                $book->returnDate = $book->returnDate($user);
+            }
+            return $book;
+        });
+
         return response()->json($books);
     }
 
@@ -121,5 +212,18 @@ class IndexController extends Controller
             $user->books()->syncWithPivotValues($book->id, ['rental_status_id' => 33], false);
         }
         return response()->json($book);
+    }
+
+    public function getBookFormData(Request $request)
+    {
+        $user = $request->user();
+
+        $authors = Author::all();
+        $publishers = Publisher::all();
+
+        return response()->json([
+            'authors' => $authors,
+            'publishers' => $publishers,
+        ]);
     }
 }

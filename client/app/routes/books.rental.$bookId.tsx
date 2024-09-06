@@ -1,11 +1,13 @@
-import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useLoaderData, useActionData } from "@remix-run/react";
+
 import { css } from "../../styled-system/css";
-import axios from "../utils/axios";
-import { form } from "../styles/form.css";
 import { button } from "../styles/button.css";
+import { form } from "../styles/form.css";
+import axios from "../utils/axios";
 import { dayjs } from "../utils/dayjs";
+
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   try {

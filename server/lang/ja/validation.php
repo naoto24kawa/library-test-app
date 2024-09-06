@@ -142,6 +142,7 @@ return [
     'url'                  => ':Attributeは、有効なURL形式で指定してください。',
     'uuid'                 => ':Attributeは、有効なUUIDである必要があります。',
     'attributes'           => [
-        'title' => 'タイトル',
+        // 'title' => 'タイトル', // requestのnameをバリデーション用に翻訳している
+        'title' => 'title',
     ],
 ];

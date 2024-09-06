@@ -18,6 +18,10 @@ class Book extends Model
 
     protected $table='books';
 
+    /*
+     * Relations
+     */
+
     public function author() : BelongsTo
     {
         return $this->belongsTo(Author::class);
@@ -46,11 +50,30 @@ class Book extends Model
             ->wherePivotIn('rental_status_id', $status);
     }
 
-    public function in_progress() {
+    public function inProgress()
+    {
         return $this->belongsToMany(User::class, RentalHistory::TABLE)
             ->using(RentalHistory::class)
             ->withPivot(array_values(Schema::getColumnListing(RentalHistory::TABLE)))
             ->wherePivotIn('rental_status_id', RentalStatus::PROGRESS);
+    }
+
+    /*
+     * Functions
+     */
+    public function isProgress(User $user)
+    {
+        return $this->inProgress()->where('user_id', $user->id)->exists();
+    }
+
+    public function returnDate(User $user)
+    {
+        $rental = $this->inProgress()->where('user_id', $user->id)->first();
+        if ($rental === null) {
+            return null;
+        }
+        $date = $rental->pivot->end_date;
+        return is_null($date) ? null : Carbon::parse($date)->format('Y-m-d');
     }
 
     public function isRentable()

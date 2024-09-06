@@ -5,9 +5,11 @@ export const button = cva({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    bg: "white",
+    padding: "2",
     borderWidth: "1px",
     borderRadius: "sm",
-    borderColor: "gray",
+    borderColor: "gray.200",
     _hover: {
       shadow: "md",
       cursor: "pointer",

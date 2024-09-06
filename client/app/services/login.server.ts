@@ -1,5 +1,6 @@
 import axios from "../utils/axios";
-import { Authentication } from "../types/Authentication";
+
+import type { Authentication } from "../types/Authentication";
 
 export async function login(
   email: string,

@@ -22,14 +22,15 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    Route::get('/test', [App\Http\Controllers\Books\IndexController::class, 'get']);
-    Route::get('/test/{bookId}', [App\Http\Controllers\Books\IndexController::class, 'getById']);
+    Route::get('/test/book', [App\Http\Controllers\Books\IndexController::class, 'get']);
+    Route::get('/test/book/{bookId}', [App\Http\Controllers\Books\IndexController::class, 'getById']);
 
     Route::post('/test/rental', [App\Http\Controllers\Books\IndexController::class, 'setRental']);
     Route::post('/test/return', [App\Http\Controllers\Books\IndexController::class, 'setReturn']);
-    Route::post('/test/create', [App\Http\Controllers\Books\IndexController::class, 'create']);
-    Route::post('/test/update/{bookId}', [App\Http\Controllers\Books\IndexController::class, 'updateById']);
-    Route::post('/test/delete', [App\Http\Controllers\Books\IndexController::class, 'delete']);
+    Route::post('/test/book/create', [App\Http\Controllers\Books\IndexController::class, 'create']);
+    Route::post('/test/book/update', [App\Http\Controllers\Books\IndexController::class, 'update']);
+    Route::post('/test/book/delete', [App\Http\Controllers\Books\IndexController::class, 'delete']);
     Route::get('/test/borrowed', [App\Http\Controllers\Books\IndexController::class, 'getBorrowed']);
+    Route::get('/test/form/book', [App\Http\Controllers\Books\IndexController::class, 'getBookFormData']);
 });
 

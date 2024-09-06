@@ -1,8 +1,9 @@
 import dayjs from "dayjs";
+import minMax from "dayjs/plugin/minMax";
+
 import type { Dayjs } from "dayjs";
 
 // 最大値・最小値の計算するための拡張プラグイン
-import minMax from "dayjs/plugin/minMax";
 
 // 日本時間に変換する
 import "dayjs/locale/ja";

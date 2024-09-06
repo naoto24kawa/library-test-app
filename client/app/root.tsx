@@ -12,13 +12,16 @@ import {
   useRouteError,
 } from "@remix-run/react";
 
-import styles from "./index.css?url";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { Authentication } from "./types/Authentication";
+import { css } from "../styled-system/css";
+import { hstack } from "../styled-system/patterns";
+
 import Spinner from "./components/Spinner";
+import styles from "./index.css?url";
 import { authenticator } from "./services/auth.server";
 import { link } from "./styles/link.css";
-import { hstack } from "../styled-system/patterns";
+
+import type { Authentication } from "./types/Authentication";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -33,23 +36,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
-        <div className={hstack({ gap: "10px" })}>
-          <Link to="/" className={link()}>
-            Home{" "}
-          </Link>
-          <Link to="/login" className={link()}>
-            Login{" "}
-          </Link>
-          <Link to="/books" className={link()}>
-            Books{" "}
-          </Link>
-          <Link to="/users" className={link()}>
-            Users{" "}
-          </Link>
-        </div>
-        <h1>{`root.tsx(${location.pathname})`}</h1>
-        {navigation.state !== "idle" ? <Spinner /> : children}
+      <body className={css({ bg: "gray.50" })}>
+        <header>
+          <div className={hstack({ gap: "10px" })}>
+            <Link to="/" className={link()}>
+              Home{" "}
+            </Link>
+            <Link to="/login" className={link()}>
+              Login{" "}
+            </Link>
+            <Link to="/books" className={link()}>
+              Books{" "}
+            </Link>
+            <Link to="/users" className={link()}>
+              Users{" "}
+            </Link>
+          </div>
+          <h1>{`root.tsx(${location.pathname})`}</h1>
+        </header>
+        {navigation.state !== "idle" && <Spinner />}
+        {children}
         <ScrollRestoration />
         <Scripts />
       </body>

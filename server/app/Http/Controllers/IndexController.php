@@ -20,7 +20,7 @@ class IndexController extends Controller
 
     public function react(Request $request, BooksService $booksService)
     {
-        $user = $request->user()->loadMissing('in_progress');
+        $user = $request->user()->loadMissing('inProgress');
         $books = $booksService->getBooks();
         return Inertia::render('LibraryListPage', ['user' => $user, 'books' => $books]);
     }

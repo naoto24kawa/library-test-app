@@ -14,7 +14,7 @@ class BooksService
     {
         return Book::query()
             ->orderBy('created_at', 'DESC')
-            ->with('author:id,name', 'publisher:id,name', 'in_progress')
+            ->with('author:id,name', 'publisher:id,name', 'inProgress')
             ->paginate(12);
     }
 
@@ -22,7 +22,7 @@ class BooksService
     {
         return Book::query()
             ->where('id', $bookId)
-            ->with('author:id,name', 'publisher:id,name', 'in_progress')
+            ->with('author:id,name', 'publisher:id,name', 'inProgress')
             ->withCount('users')->firstOrFail();
     }
 

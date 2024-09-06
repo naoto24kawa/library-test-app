@@ -21,10 +21,10 @@ const BookCardComponent: React.FunctionComponent<Props> = ({
   isDetail = false,
 }) => {
   const returnDate = dayjs.min(
-    book.in_progress?.map((user) => dayjs(user.pivot?.end_date)) ?? []
+    book.inProgress?.map((user) => dayjs(user.pivot?.end_date)) ?? []
   )
-  const isRentable = (book.amount ?? 0) > (book.in_progress?.length ?? 0)
-  const isBorrowed = user.in_progress?.map((book) => book.id).includes(book.id)
+  const isRentable = (book.amount ?? 0) > (book.inProgress?.length ?? 0)
+  const isBorrowed = user.inProgress?.map((book) => book.id).includes(book.id)
 
   const [, setIsOpen] = useModal(ModalTypeEnum.rental)
 

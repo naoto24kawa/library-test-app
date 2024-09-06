@@ -16,7 +16,7 @@ export const ImageUtil = {
     }
   },
   // dataurlを取得
-  async getDataUrlFromFile(file: any) {
+  getImageURLAsync: async (file: File): Promise<string> => {
     try {
       return await imageCompression.getDataUrlFromFile(file);
     } catch (error) {

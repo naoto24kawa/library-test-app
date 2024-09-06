@@ -1,10 +1,12 @@
-import { useLoaderData } from "@remix-run/react";
-import axios from "../utils/axios";
-import { getSession } from "../services/session.server";
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { authenticator } from "../services/auth.server";
-
 import path from "path";
+
+import { useLoaderData } from "@remix-run/react";
+
+import { authenticator } from "../services/auth.server";
+import { getSession } from "../services/session.server";
+import axios from "../utils/axios";
+
+import type { LoaderFunctionArgs } from "@remix-run/node";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // const cookieStore = request.headers.get("Cookie");

@@ -20,7 +20,9 @@ type Book = {
   isRentable?: boolean;
   rentalTimes?: number;
   earliestReturnDate?: string;
-  in_progress?: User[];
+  inProgress?: User[];
+  isProgress?: boolean;
+  returnDate?: string;
   users_count?: number;
   rental_history?: RentalHistory;
 };
@@ -62,7 +64,7 @@ type User = {
   books?: Book[];
   borrowedBooks?: Book[];
   pivot?: RentalHistory;
-  in_progress?: Book[];
+  inProgress?: Book[];
 };
 
 type Token = {

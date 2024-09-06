@@ -1,6 +1,7 @@
 export const APP_NAME = import.meta.env.VITE_APP_NAME;
 export const APP_URL = import.meta.env.VITE_APP_URL;
 export const APP_PORT = import.meta.env.VITE_APP_PORT;
+export const APP_STORAGE_URL = import.meta.env.VITE_APP_STORAGE_URL;
 
 export const SESSION_SECRET = import.meta.env.VITE_SESSION_SECRET;
 
