@@ -8,12 +8,12 @@ if (sessionSecret === undefined)
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
-    name: "auth_session",
+    name: "remix_auth_session",
     sameSite: "lax",
     path: "/",
     httpOnly: true,
     secrets: [sessionSecret],
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
     maxAge: 60 * 60 * 24,
   },
 });

@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Form } from "@remix-run/react";
 
-import { APP_STORAGE_URL } from "../../../conf";
+import { STORAGE_URL } from "../../../conf";
 import { css } from "../../../styled-system/css";
 import { form } from "../../style.css";
 import { ImageUtil } from "../../utils/ImageUtil";
@@ -26,7 +26,7 @@ const BookForm: React.FC<Props> = ({
   const { root, group, control, label } = form.raw({ size: "lg" });
   const [title, setTitle] = useState(book?.title);
   const [imageURL, setImageURL] = useState<string | null>(
-    book?.img_path ? `${APP_STORAGE_URL}/images/books/${book?.img_path}` : null
+    book?.img_path ? `${STORAGE_URL}/images/books/${book?.img_path}` : null
   );
   return (
     <div className={css({ display: "flex", flexDirection: "row" })}>

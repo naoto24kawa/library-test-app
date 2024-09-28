@@ -4,30 +4,56 @@ import { AxiosError } from "axios";
 
 import { BookForm } from "../components/BookForm";
 import { setupForm, getFormData } from "../components/BookForm/server";
+import { authenticator } from "../services/auth.server";
 import axios from "../utils/axios";
 
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   try {
-    const book = await axios.get<Book>(`/test/book/${params.bookId}`, request);
-    // TODO: データが取得できない場合の処理を検討
+    const book = await axios.get<Book>(`/api/test/book/${params.bookId}`, {
+      headers: {
+        Authorization: `Bearer ${
+          (
+            await authenticator.isAuthenticated(request)
+          )?.token
+        }`,
+      },
+    });
     if (!book.data) {
       throw new Response(`Not Found: (bookId: ${params.bookId})`, {
         status: 404,
       });
     }
-    const response = await setupForm(request);
+
+    let setupFormResponse;
+    try {
+      setupFormResponse = await setupForm(request);
+    } catch (setupError) {
+      console.error("setupForm エラー:", setupError);
+      return json(
+        { error: "フォームの初期化中にエラーが発生しました。" },
+        { status: 500 }
+      );
+    }
+
     return json({
       book: book.data,
-      authors: response.data.authors,
-      publishers: response.data.publishers,
+      authors: setupFormResponse.authors,
+      publishers: setupFormResponse.publishers,
     });
   } catch (error) {
-    return json(
-      { error: `予期せぬエラーが発生しました: ${error}` },
-      { status: 400 }
-    );
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        throw new Response("本が見つかりません", { status: 404 });
+      } else {
+        console.error("APIエラー:", error.message);
+        throw new Response("サーバーエラーが発生しました", { status: 500 });
+      }
+    } else {
+      console.error("予期せぬエラー:", error);
+      throw new Response("予期せぬエラーが発生しました", { status: 500 });
+    }
   }
 };
 
@@ -43,9 +69,17 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 
     // APIにPOSTリクエストを送信
     const response = await axios.post(
-      `/test/update/${params.bookId}`,
+      `/api/test/update/${params.bookId}`,
       data,
-      request
+      {
+        headers: {
+          Authorization: `Bearer ${
+            (
+              await authenticator.isAuthenticated(request)
+            )?.token
+          }`,
+        },
+      }
     );
 
     // 成功した場合、更新された本の詳細ページにリダイレクト

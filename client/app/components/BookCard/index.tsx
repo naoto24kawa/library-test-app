@@ -10,7 +10,7 @@ import {
   BsCartCheck,
 } from "react-icons/bs";
 
-import { APP_STORAGE_URL } from "../../../conf";
+import { STORAGE_URL } from "../../../conf";
 import { css } from "../../../styled-system/css";
 import { flex } from "../../../styled-system/patterns";
 
@@ -63,7 +63,7 @@ const BookCardComponent: React.FunctionComponent<Props> = ({ book }) => {
               objectFit: "cover",
               objectPosition: "center",
             })}
-            src={`${APP_STORAGE_URL}/images/books/${book.img_path}`}
+            src={`${STORAGE_URL}/images/books/${book.img_path}`}
             alt={book.title}
           />
         ) : (
@@ -76,8 +76,6 @@ const BookCardComponent: React.FunctionComponent<Props> = ({ book }) => {
               alignItems: "center",
               height: "250px",
               width: "calc(250px * 3 / 4)",
-              borderRadius: "sm",
-              marginRight: "4",
               flexShrink: 0,
             })}
           >
@@ -101,6 +99,12 @@ const BookCardComponent: React.FunctionComponent<Props> = ({ book }) => {
             className={css({
               width: "100%",
             })}
+            onSubmit={(event) => {
+              const response = confirm("Please confirm you want to Return?");
+              if (!response) {
+                event.preventDefault();
+              }
+            }}
           >
             <input type="hidden" name="bookId" value={book.id} />
             <button
@@ -186,7 +190,15 @@ const BookCardComponent: React.FunctionComponent<Props> = ({ book }) => {
         <Link to={`/books/update/${book.id}`}>
           <BsPencil />
         </Link>
-        <Form method="post">
+        <Form
+          method="post"
+          onSubmit={(event) => {
+            const response = confirm("Please confirm you want to Delete?");
+            if (!response) {
+              event.preventDefault();
+            }
+          }}
+        >
           <input type="hidden" name="bookId" value={book.id} />
           <button
             type="submit"

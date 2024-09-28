@@ -1,10 +1,6 @@
-import path from "path";
-
 import { useLoaderData } from "@remix-run/react";
 
 import { authenticator } from "../services/auth.server";
-import { getSession } from "../services/session.server";
-import axios from "../utils/axios";
 
 import type { LoaderFunctionArgs } from "@remix-run/node";
 

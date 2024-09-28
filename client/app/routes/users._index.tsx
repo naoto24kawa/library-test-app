@@ -1,24 +1,35 @@
-import { Form, useLoaderData, useOutletContext } from "@remix-run/react";
+import { useLoaderData, useOutletContext } from "@remix-run/react";
 
 import { css } from "../../styled-system/css";
 import BookCardComponent from "../components/BookCard";
-import { link } from "../style.css";
+import { authenticator } from "../services/auth.server";
 import axios from "../utils/axios";
 
-// import { Pagination as PaginationType } from "../types/Pagination";
 import type { Authentication } from "../types/Authentication";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
-    const response = await axios.get<Book>("/test/borrowed", request);
-    if (!response.data) {
-      throw new Response("Not Found", { status: 404 });
-    }
+    const response = await axios.get<Book[]>("/api/test/borrowed", {
+      headers: {
+        Authorization: `Bearer ${
+          (
+            await authenticator.isAuthenticated(request)
+          )?.token
+        }`,
+      },
+    });
     return response.data;
   } catch (error) {
-    console.log(error);
-    return null;
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        throw new Response("Not Found", { status: 404 });
+      }
+      console.error("APIエラー:", error.message);
+      throw new Response("APIエラーが発生しました", { status: 500 });
+    }
+    console.error("予期せぬエラー:", error);
+    throw new Response("予期せぬエラーが発生しました", { status: 500 });
   }
 };
 
@@ -29,8 +40,30 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   console.log(_action);
 
   if (_action === "return") {
-    console.log("called return");
-    axios.post("/test/return", data, request);
+    try {
+      const response = await axios.post("/api/test/return", data, {
+        headers: {
+          Authorization: `Bearer ${
+            (
+              await authenticator.isAuthenticated(request)
+            )?.token
+          }`,
+        },
+      });
+      // レスポンスの確認
+      if (response.status === 200) {
+        return { success: "本が正常に返却されました" };
+      } else {
+        return { error: "本の返却中に予期せぬエラーが発生しました" };
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("APIエラー:", error.message);
+        return { error: "本の返却中にAPIエラーが発生しました" };
+      }
+      console.error("予期せぬエラー:", error);
+      return { error: "本の返却中に予期せぬエラーが発生しました" };
+    }
   }
   return null;
 };

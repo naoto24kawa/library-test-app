@@ -1,26 +1,41 @@
 import { json } from "@remix-run/node";
 import { useLoaderData, useOutletContext } from "@remix-run/react";
-import { vstack } from "styled-system/patterns";
 
+import { vstack } from "../../styled-system/patterns";
 import BookCardComponent from "../components/BookCard";
+import { authenticator } from "../services/auth.server";
 import axios from "../utils/axios";
 
 import type { Authentication } from "../types/Authentication";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   try {
-    const response = await axios.get<Book>(
-      `/test/book/${params.bookId}`,
-      request
-    );
+    const response = await axios.get<Book>(`/api/test/book/${params.bookId}`, {
+      headers: {
+        Authorization: `Bearer ${
+          (
+            await authenticator.isAuthenticated(request)
+          )?.token
+        }`,
+      },
+    });
     if (!response.data) {
-      throw new Response("Not Found", { status: 404 });
+      throw new Response("本が見つかりません", { status: 404 });
     }
     return json(response.data);
   } catch (error) {
-    console.log(error);
-    return null;
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        throw new Response("本が見つかりません", { status: 404 });
+      } else {
+        console.error("APIエラー:", error.message);
+        throw new Response("サーバーエラーが発生しました", { status: 500 });
+      }
+    } else {
+      console.error("予期せぬエラー:", error);
+      throw new Response("予期せぬエラーが発生しました", { status: 500 });
+    }
   }
 };
 

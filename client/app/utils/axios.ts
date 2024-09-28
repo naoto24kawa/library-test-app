@@ -1,65 +1,51 @@
-import axiosOriginal from "axios";
+import axios from "axios";
 
-import { APP_URL, APP_PORT } from "../../conf";
-import { authenticator } from "../services/auth.server";
+import { APP_URL, APP_PORT, SERVER_URL, SERVER_PORT } from "../../conf";
 
-import type { AxiosRequestConfig } from "axios";
+// api server request path
+axios.defaults.baseURL = `${SERVER_URL}:${SERVER_PORT}`;
 
-axiosOriginal.defaults.baseURL = `${APP_URL}:${APP_PORT}/api`; // TODO: .envから変数を取得するように変更する
-axiosOriginal.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
+// File送信のため
+axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 
-const axios = {
-  get: async <T>(
-    url: string,
-    request: Request | null,
-    config?: AxiosRequestConfig
-  ) => {
-    const cookie = request
-      ? await authenticator.isAuthenticated(request)
-      : null;
-    return axiosOriginal.get<T>(url, {
-      ...config,
-      headers: {
-        ...config?.headers,
-        Authorization: cookie ? `Bearer ${cookie.token}` : undefined,
-      },
-    });
-  },
-  post: async <T>(
-    url: string,
-    data: any,
-    request: Request | null,
-    config?: AxiosRequestConfig
-  ) => {
-    const cookie = request
-      ? await authenticator.isAuthenticated(request)
-      : null;
-    return axiosOriginal.post<T>(url, data, {
-      ...config,
-      headers: {
-        ...config?.headers,
-        Authorization: cookie ? `Bearer ${cookie.token}` : undefined,
-      },
-    });
-  },
-  postMultipartForm: async <T>(
-    url: string,
-    data: FormData,
-    request: Request | null,
-    config?: AxiosRequestConfig
-  ) => {
-    const cookie = request
-      ? await authenticator.isAuthenticated(request)
-      : null;
-    return axiosOriginal.post<T>(url, data, {
-      ...config,
-      headers: {
-        ...config?.headers,
-        "Content-Type": "multipart/form-data",
-        Authorization: cookie ? `Bearer ${cookie.token}` : undefined,
-      },
-    });
-  },
+// Laravel Sanctumに認識させるためにOriginヘッダーを設定
+axios.defaults.headers.common["Origin"] = `${APP_URL}:${APP_PORT}`;
+
+// COOKIEの送信のため
+axios.defaults.withCredentials = true;
+
+let isCSRFTokenFetched = false;
+
+// CSRFトークンを取得する関数
+const getCsrfToken = async () => {
+  if (isCSRFTokenFetched) {
+    return;
+  }
+
+  try {
+    await axios.get("/sanctum/csrf-cookie");
+    isCSRFTokenFetched = true;
+  } catch (error) {
+    console.error("CSRFトークンの取得に失敗しました:", error);
+    throw error;
+  }
 };
+
+// API呼び出しの前にCSRFトークンを取得
+// axios.interceptors.request.use(
+//   async (config) => {
+//     try {
+//       await getCsrfToken();
+//       return config;
+//     } catch (error) {
+//       console.error("リクエストインターセプターでエラーが発生しました:", error);
+//       return Promise.reject(error);
+//     }
+//   },
+//   (error) => {
+//     console.error("リクエストインターセプターでエラーが発生しました:", error);
+//     return Promise.reject(error);
+//   }
+// );
 
 export default axios;
