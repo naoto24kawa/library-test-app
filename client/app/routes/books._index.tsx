@@ -16,7 +16,6 @@ import {
   deleteBook,
 } from "../components/BookCard/server";
 import { authenticator } from "../services/auth.server";
-import { getSession } from "../services/session.server";
 import { button } from "../styles/button.css";
 import axios from "../utils/axios";
 
@@ -42,12 +41,6 @@ export const loader = async ({
   q: string | null;
   error: string | null;
 }> => {
-  const auth = await authenticator.isAuthenticated(request);
-  console.log("auth");
-  console.log(auth);
-  const session = await getSession(request.headers.get("cookie"));
-  console.log("session");
-  console.log(session);
   try {
     const url = new URL(request.url);
     const q = url.searchParams.get("q");
