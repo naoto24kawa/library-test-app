@@ -15,6 +15,8 @@ import {
   returnBook,
   deleteBook,
 } from "../components/BookCard/server";
+import { authenticator } from "../services/auth.server";
+import { getSession } from "../services/session.server";
 import { button } from "../styles/button.css";
 import axios from "../utils/axios";
 
@@ -36,24 +38,44 @@ export const meta: MetaFunction = () => {
 export const loader = async ({
   request,
 }: LoaderFunctionArgs): Promise<{
-  books: PaginationType<Book>;
+  books: PaginationType<Book> | null;
   q: string | null;
+  error: string | null;
 }> => {
+  const auth = await authenticator.isAuthenticated(request);
+  console.log("auth");
+  console.log(auth);
+  const session = await getSession(request.headers.get("cookie"));
+  console.log("session");
+  console.log(session);
   try {
     const url = new URL(request.url);
     const q = url.searchParams.get("q");
     const response = await axios.get<PaginationType<Book>>(
-      `/test/book${url.search}`,
-      request
+      `/api/test/book${url.search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${
+            (
+              await authenticator.isAuthenticated(request)
+            )?.token
+          }`,
+        },
+      }
     );
 
     if (!response.data) {
-      throw new Response("Not Found", { status: 404 });
+      throw new Error("データが見つかりません");
     }
 
-    return json({ books: response.data, q: q });
+    return json({ books: response.data, q: q, error: null });
   } catch (error) {
-    return json({ books: null, q: null });
+    console.error("ブックデータの取得中にエラーが発生しました:", error);
+    let errorMessage = "データの取得中にエラーが発生しました";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    return json({ books: null, q: null, error: errorMessage }, { status: 500 });
   }
 };
 

@@ -8,10 +8,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use \Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
-    public function login(Request $request){
+    public function login(Request $request)
+    {
+        // ドメインをログに出力
+        Log::info('Login attempt from domain: ' . $request->headers);
+
         // バリデーション
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'email'],

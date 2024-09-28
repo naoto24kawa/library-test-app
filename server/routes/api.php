@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [App\Http\Controllers\Api\RegisterController::class, 'register']); // ユーザー登録
 Route::post('/login', [App\Http\Controllers\Api\LoginController::class, 'login']); // ログイン
 
+Route::get('/health', [App\Http\Controllers\Books\IndexController::class, 'healthCheck']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -33,4 +35,3 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/test/borrowed', [App\Http\Controllers\Books\IndexController::class, 'getBorrowed']);
     Route::get('/test/form/book', [App\Http\Controllers\Books\IndexController::class, 'getBookFormData']);
 });
-

@@ -6,6 +6,7 @@ import {
 import isEmpty from "validator/lib/isEmpty";
 import isLength from "validator/lib/isLength";
 
+import { authenticator } from "../../services/auth.server";
 import axios from "../../utils/axios";
 import { setValidationErrors } from "../../utils/validator";
 
@@ -15,45 +16,77 @@ import type {
 } from "../../utils/validator";
 
 export const setupForm = async (request: Request) => {
-  return await axios.get<{ authors: Author[]; publishers: Publisher[] }>(
-    `/test/form/book`,
-    request
-  );
+  try {
+    const response = await axios.get<{
+      authors: Author[];
+      publishers: Publisher[];
+    }>(`/api/test/form/book`, {
+      headers: {
+        Authorization: `Bearer ${
+          (
+            await authenticator.isAuthenticated(request)
+          )?.token
+        }`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Response(`エラー: ${error.message}`, {
+        status: error.response?.status || 500,
+      });
+    } else {
+      throw new Response("予期せぬエラーが発生しました", { status: 500 });
+    }
+  }
 };
 
 export const getFormData = async (
   request: Request
 ): Promise<FormData | ValidationErrorResponse> => {
-  // Convert multipart/form-data to FormData
-  const data = await multipartFormDataToFormData(request);
+  try {
+    // Convert multipart/form-data to FormData
+    const data = await multipartFormDataToFormData(request);
 
-  // Validate FormData
-  const { validationErrors, hasErrors } = setValidationErrors([
-    validateTitle(data),
-    validateAmount(data),
-  ]);
+    // Validate FormData
+    const { validationErrors, hasErrors } = setValidationErrors([
+      validateTitle(data),
+      validateAmount(data),
+    ]);
 
-  if (hasErrors) {
-    return validationErrors;
+    if (hasErrors) {
+      return validationErrors;
+    }
+
+    return data;
+  } catch (error) {
+    throw new Response("フォームデータの処理中にエラーが発生しました", {
+      status: 500,
+    });
   }
-
-  return data;
 };
 
 const multipartFormDataToFormData = async (
   request: Request
 ): Promise<FormData> => {
-  const uploadHandler = composeUploadHandlers(createMemoryUploadHandler());
-  const multipartFormData = await parseMultipartFormData(
-    request,
-    uploadHandler
-  );
+  try {
+    const uploadHandler = composeUploadHandlers(createMemoryUploadHandler());
+    const multipartFormData = await parseMultipartFormData(
+      request,
+      uploadHandler
+    );
 
-  const data = new FormData();
-  for (const [key, value] of multipartFormData) {
-    data.append(key, value);
+    const data = new FormData();
+    for (const [key, value] of multipartFormData) {
+      data.append(key, value);
+    }
+    return data;
+  } catch (error) {
+    throw new Response(
+      "マルチパートフォームデータの処理中にエラーが発生しました",
+      { status: 400 }
+    );
   }
-  return data;
 };
 
 const validateTitle = (data: FormData): ValidationError => {

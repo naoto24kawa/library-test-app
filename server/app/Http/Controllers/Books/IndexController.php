@@ -21,8 +21,8 @@ class IndexController extends Controller
     {
         $book = $booksService->getBook($request->route('bookId'));
         return view('library.books.detail', [
-                'book' => $book,
-            ]);
+            'book' => $book,
+        ]);
     }
 
     public function react(Request $request, BooksService $booksService)
@@ -31,10 +31,10 @@ class IndexController extends Controller
         $book = $booksService->getBook($request->route('bookId'));
         $comments = $book->comments->loadMissing('created_user', 'children.created_user');
         return Inertia::render('BookDetailPage', [
-                'user' => $user,
-                'book' => $book,
-                'comments' => $comments,
-            ]);
+            'user' => $user,
+            'book' => $book,
+            'comments' => $comments,
+        ]);
     }
 
     public function get(Request $request, BooksService $booksService)
@@ -74,10 +74,21 @@ class IndexController extends Controller
 
     public function getById(Request $request, BooksService $booksService)
     {
+        // ログインユーザーを取得
+        $user = $request->user();
+
         $book = Book::query()
             ->where('id', $request->route('bookId'))
             ->with('author:id,name', 'publisher:id,name', 'inProgress')
             ->withCount('users')->firstOrFail();
+
+        // レンタル可否
+        $book->isRentable = $book->isRentable();
+        // ログインユーザーの利用状況を取得
+        if (!is_null($user)) {
+            $book->isProgress = $book->isProgress($user);
+            $book->returnDate = $book->returnDate($user);
+        }
         return response()->json($book);
     }
 
@@ -104,13 +115,11 @@ class IndexController extends Controller
             $book->img_path = $request->file('image')->hashName();
         }
 
-        if (!empty($request->input('author')))
-        {
+        if (!empty($request->input('author'))) {
             $author = Author::createOrFirst(['name' => $request->input('author')]); // TODO: Createしたかどうかわからないのが嫌
             $book->author()->associate($author);
         }
-        if (!empty($request->input('publisher')))
-        {
+        if (!empty($request->input('publisher'))) {
             $publisher = Publisher::createOrFirst(['name' => $request->input('publisher')]); // TODO: Createしたかどうかわからないのが嫌
             $book->publisher()->associate($publisher);
         }
@@ -141,13 +150,11 @@ class IndexController extends Controller
             $book->img_path = $request->file('image')->hashName();
         }
 
-        if (!empty($request->input('author')))
-        {
+        if (!empty($request->input('author'))) {
             $author = Author::createOrFirst(['name' => $request->input('author')]); // TODO: Createしたかどうかわからないのが嫌
             $book->author()->associate($author);
         }
-        if (!empty($request->input('publisher')))
-        {
+        if (!empty($request->input('publisher'))) {
             $publisher = Publisher::createOrFirst(['name' => $request->input('publisher')]); // TODO: Createしたかどうかわからないのが嫌
             $book->publisher()->associate($publisher);
         }
@@ -225,5 +232,10 @@ class IndexController extends Controller
             'authors' => $authors,
             'publishers' => $publishers,
         ]);
+    }
+
+    public function healthCheck()
+    {
+        return response()->json(['status' => 'ok']);
     }
 }

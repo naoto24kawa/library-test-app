@@ -1,7 +1,7 @@
-import { json, redirect } from "@remix-run/node";
+import { redirect, json } from "@remix-run/node";
 import { Form, useLoaderData, useActionData } from "@remix-run/react";
 
-import { css } from "../../styled-system/css";
+import { authenticator } from "../services/auth.server";
 import { button } from "../styles/button.css";
 import { form } from "../styles/form.css";
 import axios from "../utils/axios";
@@ -9,16 +9,33 @@ import { dayjs } from "../utils/dayjs";
 
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   try {
-    const response = await axios.get<Book>(`/test/${params.bookId}`, request);
+    const response = await axios.get<Book>(`/api/test/book/${params.bookId}`, {
+      headers: {
+        Authorization: `Bearer ${
+          (
+            await authenticator.isAuthenticated(request)
+          )?.token
+        }`,
+      },
+    });
     if (!response.data) {
-      throw new Response("Not Found", { status: 404 });
+      throw new Response("本が見つかりません", { status: 404 });
     }
-    return response.data;
+    return json(response.data);
   } catch (error) {
-    console.log(error);
-    return null;
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        throw new Response("本が見つかりません", { status: 404 });
+      } else {
+        console.error("APIエラー:", error.message);
+        throw new Response("サーバーエラーが発生しました", { status: 500 });
+      }
+    } else {
+      console.error("予期せぬエラー:", error);
+      throw new Response("予期せぬエラーが発生しました", { status: 500 });
+    }
   }
 };
 
@@ -29,7 +46,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (_action === "rental") {
     console.log(`${dayjs().format("DD-MM-YYYY HH:mm:ss")}: called rental`);
     console.log(data);
-    const response = await axios.post("/test/rental", data, request);
+    const response = await axios.post("/api/test/rental", data, {
+      headers: {
+        Authorization: `Bearer ${
+          (
+            await authenticator.isAuthenticated(request)
+          )?.token
+        }`,
+      },
+    });
     console.log(response);
   }
 

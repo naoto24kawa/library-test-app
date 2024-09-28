@@ -4,18 +4,37 @@ import { AxiosError } from "axios";
 
 import { BookForm } from "../components/BookForm";
 import { setupForm, getFormData } from "../components/BookForm/server";
+import { authenticator } from "../services/auth.server";
 import axios from "../utils/axios";
 
-import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     const response = await setupForm(request);
-    return json(response.data);
+    return json(response);
   } catch (error) {
+    console.error("setupForm エラー:", error);
+
+    if (axios.isAxiosError(error)) {
+      // AxiosErrorの場合、より詳細なエラー情報を返す
+      return json(
+        {
+          error: `データの取得に失敗しました: ${
+            error.response?.data?.message || error.message
+          }`,
+        },
+        { status: error.response?.status || 500 }
+      );
+    }
+
+    // その他のエラーの場合
     return json(
-      { error: `予期せぬエラーが発生しました: ${error}` },
-      { status: 400 }
+      {
+        error:
+          "予期せぬエラーが発生しました。しばらく経ってからもう一度お試しください。",
+      },
+      { status: 500 }
     );
   }
 };
@@ -31,11 +50,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     // APIにPOSTリクエストを送信
-    const response = await axios.postMultipartForm(
-      `/test/book/create`,
-      data,
-      request
-    );
+    const response = await axios.post(`/api/test/book/create`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${
+          (
+            await authenticator.isAuthenticated(request)
+          )?.token
+        }`,
+      },
+    });
 
     // 成功した場合はリダイレクト
     if (response.status === 200) {
