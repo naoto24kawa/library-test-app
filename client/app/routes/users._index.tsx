@@ -9,14 +9,13 @@ import type { Authentication } from "../types/Authentication";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const session = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login",
+  });
   try {
     const response = await axios.get<Book[]>("/api/test/borrowed", {
       headers: {
-        Authorization: `Bearer ${
-          (
-            await authenticator.isAuthenticated(request)
-          )?.token
-        }`,
+        Authorization: `Bearer ${session.token}`,
       },
     });
     return response.data;
@@ -26,10 +25,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         throw new Response("Not Found", { status: 404 });
       }
       console.error("APIエラー:", error.message);
-      throw new Response("APIエラーが発生しました", { status: 500 });
+      throw new Error("APIエラーが発生しました");
     }
     console.error("予期せぬエラー:", error);
-    throw new Response("予期せぬエラーが発生しました", { status: 500 });
+    throw new Error("予期せぬエラーが発生しました");
   }
 };
 

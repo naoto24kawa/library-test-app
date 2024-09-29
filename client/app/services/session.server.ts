@@ -1,6 +1,6 @@
 import { createCookieSessionStorage } from "@remix-run/node";
 
-import { SESSION_SECRET } from "../../conf";
+import { APP_HOST, SESSION_SECRET } from "../../conf";
 
 const sessionSecret: string | undefined = SESSION_SECRET;
 if (sessionSecret === undefined)
@@ -15,6 +15,7 @@ export const sessionStorage = createCookieSessionStorage({
     secrets: [sessionSecret],
     secure: false,
     maxAge: 60 * 60 * 24,
+    domain: APP_HOST, // TODO: sessionのdomainを設定したのでwithCredentialsが効くかもしれない
   },
 });
 

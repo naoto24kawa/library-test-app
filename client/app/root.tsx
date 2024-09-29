@@ -1,5 +1,4 @@
 import {
-  isRouteErrorResponse,
   json,
   Link,
   Links,
@@ -88,22 +87,18 @@ export default function App() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
-
-  if (isRouteErrorResponse(error)) {
-    return (
-      <>
-        <h1>
-          {error.status} {error.statusText}
-        </h1>
-        <p>{error.data}</p>
-      </>
-    );
-  }
-
+  console.error(error);
   return (
-    <>
-      <h1>Error!</h1>
-      <p>{error?.message ?? "Unknown error"}</p>
-    </>
+    <html lang="jp">
+      <head>
+        <title>Oh no!</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        {/* add the UI you want your users to see */}
+        <Scripts />
+      </body>
+    </html>
   );
 }
