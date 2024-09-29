@@ -5,15 +5,16 @@
 プロジェクトフォルダへ移動
 
 ```shell
-git clone https://github.com/naoto24kawa/library-test-app
-cd library
+git clone https://github.com/naoto24kawa/open-library-manage-system
+cd open-library-manage-system
 ```
 
 > ### Highly recommended
 >
 > 1. Open Setting file
-> 
+>
 >    for Mac
+>
 >    ```
 >    vim ~/.zshrc
 >    ```
@@ -25,12 +26,17 @@ cd library
 >    ```
 >
 > 2. Add Alias
-> 
+>
 >    ```shell
 >    # Laravel Sail
 >    alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
 >    ```
-> 
+
+### Server
+
+```shell
+cd open-library-manage-system/server
+```
 
 Composer Install
 
@@ -55,19 +61,33 @@ cp .env.example .env
 sail up -d
 ```
 
-マイグレーションの実行
+（初回のみ）マイグレーションの実行
 
 ```shell
 sail artisan migrate:fresh --seed
 ```
 
-## Routing
+### Client
 
-React実装の部分
+```shell
+cd open-library-manage-system/client
+```
 
-http://localhost/react/login  
-http://localhost/react/register  
-http://localhost/react/books  
-http://localhost/react/books/1  
-http://localhost/react/books/create  
-http://localhost/react/books/update/1  
+パッケージインストール
+
+```shell
+# Node 18.17以上で動作します
+yarn
+```
+
+設定ファイルのコピー
+
+```shell
+cp .env.example .env
+```
+
+起動
+
+```shell
+yarn serve
+```
