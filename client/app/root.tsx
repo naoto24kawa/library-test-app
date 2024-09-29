@@ -1,5 +1,6 @@
 import {
   isRouteErrorResponse,
+  json,
   Link,
   Links,
   Meta,
@@ -20,12 +21,24 @@ import styles from "./index.css?url";
 import { authenticator } from "./services/auth.server";
 import { link } from "./styles/link.css";
 
-import type { Authentication } from "./types/Authentication";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+import type { LinksFunction, ActionFunctionArgs } from "@remix-run/node";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
+export const loader = async ({ request }: ActionFunctionArgs) => {
+  const session = await authenticator.isAuthenticated(request);
+  return json({
+    session,
+    ENV: {
+      STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY,
+      FAUNA_DB_URL: process.env.FAUNA_DB_URL,
+      TEST_ATTR: "window env test",
+    },
+  });
+};
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const data = useLoaderData<typeof loader>();
   const location = useLocation();
   const navigation = useNavigation();
   return (
@@ -39,11 +52,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className={css({ bg: "gray.50" })}>
         <header>
           <div className={hstack({ gap: "10px" })}>
-            <Link to="/" className={link()}>
-              Home{" "}
-            </Link>
             <Link to="/login" className={link()}>
               Login{" "}
+            </Link>
+            <Link to="/register" className={link()}>
+              Register{" "}
             </Link>
             <Link to="/books" className={link()}>
               Books{" "}
@@ -57,19 +70,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {navigation.state !== "idle" && <Spinner />}
         {children}
         <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+          }}
+        />
         <Scripts />
       </body>
     </html>
   );
 }
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  return await authenticator.isAuthenticated(request);
-};
-
 export default function App() {
-  const session = useLoaderData<Authentication>();
-  return <Outlet context={session} />;
+  const data = useLoaderData<typeof loader>();
+  return <Outlet context={data.session} />;
 }
 
 export function ErrorBoundary() {
